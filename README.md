@@ -1,6 +1,6 @@
 #### Tutorial: Building Persistent UIs with React State and Local Storage
 
-Description of this tutorial goes here. Used in your tutorial repo's README.md file.
+In this tutorial, we'll learn how to build a persistent UI using React state and local storage. We'll see how to create a UI that's set on the component state as the user make
 
 [Read this tutorial on The Meteor Chef](https://themeteorchef.com/tutorials/building-persistent-uis-with-react-state-and-local-storage)  
 
