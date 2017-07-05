@@ -13,6 +13,7 @@ import Documents from '../../pages/Documents/Documents';
 import NewDocument from '../../pages/NewDocument/NewDocument';
 import ViewDocument from '../../pages/ViewDocument/ViewDocument';
 import EditDocument from '../../pages/EditDocument/EditDocument';
+import AddCard from '../../pages/AddCard/AddCard';
 import Signup from '../../pages/Signup/Signup';
 import Login from '../../pages/Login/Login';
 import Logout from '../../pages/Logout/Logout';
@@ -34,6 +35,7 @@ const App = props => (
       <Grid>
         <Switch>
           <Route exact name="index" path="/" component={Index} />
+          <Route exact name="addCard" path="/cards/add" component={AddCard} />
           <Authenticated exact path="/documents" component={Documents} {...props} />
           <Authenticated exact path="/documents/new" component={NewDocument} {...props} />
           <Authenticated exact path="/documents/:_id" component={ViewDocument} {...props} />

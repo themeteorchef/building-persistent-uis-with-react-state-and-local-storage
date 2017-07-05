@@ -1,0 +1,84 @@
+.AddCard .ProjectsList {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  li {
+    position: relative;
+  }
+
+  li .ProjectLink {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+
+  li:not(:last-child) {
+    margin-bottom: 20px;
+  }
+
+  li img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  li.AddProject-button {
+    text-align: center;
+    padding: 10px;
+    border-radius: 3px;
+    border: 3px dashed #eee;
+
+    p {
+      margin: 0;
+    }
+
+    &:hover {
+      cursor: pointer;
+      border-color: #8BC53D;
+      color: #8BC53D;
+    }
+  }
+
+  li:not(.AddProject-button) {
+    border: 3px solid #eee;
+    border-radius: 3px;
+    opacity: 0.5;
+
+    .fa-remove {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      background: #333;
+      width: 20px;
+      height: 20px;
+      border-radius: 20px;
+      color: #fff;
+      text-align: center;
+      padding-top: 3px;
+      font-size: 13px;
+    }
+
+    .fa-remove:hover {
+      cursor: pointer;
+    }
+
+    img {
+      border-radius: 3px;
+    }
+
+    &.active,
+    &:hover {
+      opacity: 1;
+      cursor: pointer;
+    }
+  }
+}
+
+.AddCard .EditProject .EditProject-image img {
+  display: block;
+  max-width: 100%;
+}

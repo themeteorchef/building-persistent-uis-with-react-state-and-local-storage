@@ -6,41 +6,28 @@ import { timeago, monthDayYearAtTime } from '@cleverbeagle/dates';
 import { Meteor } from 'meteor/meteor';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Bert } from 'meteor/themeteorchef:bert';
-import DocumentsCollection from '../../../api/Documents/Documents';
+import ProjectsCollection from '../../../api/Projects/Projects';
 import Loading from '../../components/Loading/Loading';
 
-import './Documents.scss';
+import './Projects.scss';
 
-const handleRemove = (documentId) => {
-  if (confirm('Are you sure? This is permanent!')) {
-    Meteor.call('documents.remove', documentId, (error) => {
-      if (error) {
-        Bert.alert(error.reason, 'danger');
-      } else {
-        Bert.alert('Document deleted!', 'success');
-      }
-    });
-  }
-};
-
-const Documents = ({ loading, documents, match, history }) => (!loading ? (
-  <div className="Documents">
+const Projects = ({ loading, projects, match, history }) => (!loading ? (
+  <div className="Projects">
     <div className="page-header clearfix">
-      <h4 className="pull-left">Documents</h4>
-      <Link className="btn btn-success pull-right" to={`${match.url}/new`}>Add Document</Link>
+      <h4 className="pull-left">Projects</h4>
+      <Link className="btn btn-success pull-right" to={`${match.url}/new`}>Add Project</Link>
     </div>
-    {documents.length ? <Table responsive>
+    {projects.length ? <Table responsive>
       <thead>
         <tr>
           <th>Title</th>
           <th>Last Updated</th>
           <th>Created</th>
           <th />
-          <th />
         </tr>
       </thead>
       <tbody>
-        {documents.map(({ _id, title, createdAt, updatedAt }) => (
+        {projects.map(({ _id, title, createdAt, updatedAt }) => (
           <tr key={_id}>
             <td>{title}</td>
             <td>{timeago(updatedAt)}</td>
@@ -50,33 +37,26 @@ const Documents = ({ loading, documents, match, history }) => (!loading ? (
                 bsStyle="primary"
                 onClick={() => history.push(`${match.url}/${_id}`)}
                 block
-              >View</Button>
-            </td>
-            <td>
-              <Button
-                bsStyle="danger"
-                onClick={() => handleRemove(_id)}
-                block
-              >Delete</Button>
+              >Edit</Button>
             </td>
           </tr>
         ))}
       </tbody>
-    </Table> : <Alert bsStyle="warning">No documents yet!</Alert>}
+    </Table> : <Alert bsStyle="warning">No projects yet!</Alert>}
   </div>
 ) : <Loading />);
 
-Documents.propTypes = {
+Projects.propTypes = {
   loading: PropTypes.bool.isRequired,
-  documents: PropTypes.arrayOf(PropTypes.object).isRequired,
+  projects: PropTypes.arrayOf(PropTypes.object).isRequired,
   match: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
 };
 
 export default createContainer(() => {
-  const subscription = Meteor.subscribe('documents');
+  const subscription = Meteor.subscribe('projects');
   return {
     loading: !subscription.ready(),
-    documents: DocumentsCollection.find().fetch(),
+    projects: ProjectsCollection.find().fetch(),
   };
-}, Documents);
+}, Projects);
