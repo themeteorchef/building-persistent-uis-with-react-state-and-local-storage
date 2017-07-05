@@ -35,6 +35,13 @@ const renderDocument = (doc, match, history) => (doc ? (
       </ButtonToolbar>
     </div>
     { doc && doc.body }
+    <div className="TopicsList clearfix">
+      {doc && doc.topics.length > 0 ? <div>
+        {doc && doc.topics.map(({ _id, label }) => (
+          <div key={_id} className="Topic">{label}</div>),
+        )}
+      </div> : ''}
+    </div>
   </div>
 ) : <NotFound />);
 

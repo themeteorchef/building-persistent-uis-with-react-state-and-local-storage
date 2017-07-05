@@ -3,41 +3,67 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { FormGroup, ControlLabel, Button } from 'react-bootstrap';
+import store from 'store';
 import { Meteor } from 'meteor/meteor';
 import { Bert } from 'meteor/themeteorchef:bert';
-import validate from '../../../modules/validate';
+import { Random } from 'meteor/random';
+import { _ } from 'meteor/underscore';
+import Icon from '../Icon/Icon';
+
+import './DocumentEditor.scss';
 
 class DocumentEditor extends React.Component {
-  componentDidMount() {
-    const component = this;
-    validate(component.form, {
-      rules: {
-        title: {
-          required: true,
-        },
-        body: {
-          required: true,
-        },
-      },
-      messages: {
-        title: {
-          required: 'Need a title in here, Seuss.',
-        },
-        body: {
-          required: 'This thneeds a body, please.',
-        },
-      },
-      submitHandler() { component.handleSubmit(); },
-    });
+  constructor(props) {
+    super(props);
+    const { doc } = props;
+    const docInLocalStorage = store.get('pup_document');
+    const persistedDoc = doc || docInLocalStorage;
+
+    this.state = persistedDoc || {
+      title: '',
+      body: '',
+      topics: [],
+    };
+
+    this.setDocumentOnState = this.setDocumentOnState.bind(this);
+    this.setTopicOnState = this.setTopicOnState.bind(this);
+    this.deleteTopic = this.deleteTopic.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  setDocumentOnState(event) {
+    const doc = this.state;
+    doc[event.target.name] = event.target.value;
+    this.setState(doc, () => store.set('pup_document', doc));
+  }
+
+  setTopicOnState(event) {
+    event.persist();
+    if (event.keyCode === 13) {
+      const doc = this.state;
+      doc.topics.push({ _id: Random.id(), label: event.target.value });
+      this.setState(doc, () => {
+        store.set('pup_document', doc);
+        event.target.value = ''; // eslint-disable-line
+      });
+    }
+  }
+
+  deleteTopic(event, _id) {
+    const doc = this.state;
+    doc.topics = _.reject(doc.topics, topic => topic._id === _id);
+    this.setState(doc, () => store.set('pup_document', doc));
   }
 
   handleSubmit() {
     const { history } = this.props;
-    const existingDocument = this.props.doc && this.props.doc._id;
+    const { title, body, topics } = this.state;
+    const existingDocument = this.state && this.state._id;
     const methodToCall = existingDocument ? 'documents.update' : 'documents.insert';
     const doc = {
-      title: this.title.value.trim(),
-      body: this.body.value.trim(),
+      title: title.trim(),
+      body: body.trim(),
+      topics,
     };
 
     if (existingDocument) doc._id = existingDocument;
@@ -48,6 +74,7 @@ class DocumentEditor extends React.Component {
       } else {
         const confirmation = existingDocument ? 'Document updated!' : 'Document added!';
         this.form.reset();
+        store.remove('pup_document');
         Bert.alert(confirmation, 'success');
         history.push(`/documents/${documentId}`);
       }
@@ -55,16 +82,16 @@ class DocumentEditor extends React.Component {
   }
 
   render() {
-    const { doc } = this.props;
-    return (<form ref={form => (this.form = form)} onSubmit={event => event.preventDefault()}>
+    const { title, body, topics } = this.state;
+    return (<form ref={form => (this.form = form)} onSubmit={(event) => event.preventDefault()}>
       <FormGroup>
         <ControlLabel>Title</ControlLabel>
         <input
           type="text"
           className="form-control"
           name="title"
-          ref={title => (this.title = title)}
-          defaultValue={doc && doc.title}
+          value={title}
+          onChange={this.setDocumentOnState}
           placeholder="Oh, The Places You'll Go!"
         />
       </FormGroup>
@@ -73,20 +100,40 @@ class DocumentEditor extends React.Component {
         <textarea
           className="form-control"
           name="body"
-          ref={body => (this.body = body)}
-          defaultValue={doc && doc.body}
+          value={body}
+          onChange={this.setDocumentOnState}
           placeholder="Congratulations! Today is your day. You're off to Great Places! You're off and away!"
         />
       </FormGroup>
-      <Button type="submit" bsStyle="success">
-        {doc && doc._id ? 'Save Changes' : 'Add Document'}
+      <FormGroup>
+        <ControlLabel>Topics</ControlLabel>
+        <input
+          type="text"
+          className="form-control"
+          name="topic"
+          onKeyUp={this.setTopicOnState}
+          placeholder="Type a topic and press enter to add..."
+        />
+        <div className="TopicsList clearfix">
+          {topics.length > 0 ? <div>
+            {topics.map(({ _id, label }) => (
+              <div key={_id} className="Topic">
+                {label}
+                <Icon icon="remove" onClick={event => this.deleteTopic(event, _id)} />
+              </div>),
+            )}
+          </div> : <p>Topics you add above will appear here.</p>}
+        </div>
+      </FormGroup>
+      <Button type="button" bsStyle="success" onClick={this.handleSubmit}>
+        {this.state && this.state._id ? 'Save Changes' : 'Add Document'}
       </Button>
     </form>);
   }
 }
 
 DocumentEditor.defaultProps = {
-  doc: { title: '', body: '' },
+  doc: null,
 };
 
 DocumentEditor.propTypes = {
